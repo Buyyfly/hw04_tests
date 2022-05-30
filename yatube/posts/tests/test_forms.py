@@ -37,7 +37,7 @@ class TaskURLTests(TestCase):
         self.assertRedirects(response,
                              reverse(
                                  'posts:profile',
-                                 kwargs={'username':  self.user})
+                                 kwargs={'username': self.user})
                              )
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertTrue(
