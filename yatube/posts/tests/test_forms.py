@@ -35,8 +35,10 @@ class TaskURLTests(TestCase):
         response = self.authorized_client.post(reverse('posts:post_create'),
                                                data=form_data, follow=True)
         self.assertRedirects(response,
-                             reverse('posts:profile',
-                                     kwargs={'username':  self.user}))
+                             reverse(
+                                 'posts:profile',
+                                 kwargs={'username':  self.user})
+                             )
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertTrue(
             Post.objects.filter(
@@ -51,11 +53,14 @@ class TaskURLTests(TestCase):
             'text': 'text1',
             'group': self.group.pk,
         }
-        response = self.authorized_client.post(reverse('posts:post_edit',
-                                                       kwargs={'post_id': '111'}),
-                                               data=form_data, follow=True)
-        self.assertRedirects(response, reverse('posts:post_detail',
-                                               kwargs={'post_id': '111'}))
+        response = self.authorized_client.post(
+            reverse('posts:post_edit',
+                    kwargs={'post_id': '111'}),
+            data=form_data, follow=True)
+        self.assertRedirects(response,
+                             reverse('posts:post_detail',
+                                     kwargs={'post_id': '111'})
+                             )
         self.assertTrue(
             Post.objects.filter(
                 group=self.group,
