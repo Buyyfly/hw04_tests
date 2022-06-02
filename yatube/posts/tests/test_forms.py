@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -26,6 +28,9 @@ class TaskURLTests(TestCase):
             group=cls.group
         )
 
+    def setUp(self):
+        self.guest_client = Client()
+
     def test_create_post(self):
         post_count = Post.objects.count()
         form_data = {
@@ -44,9 +49,13 @@ class TaskURLTests(TestCase):
             Post.objects.filter(
                 group=self.group,
                 author=self.user,
-                text='text'
+                text='text',
             ).exists()
         )
+        # Не понял. Если мы фильтром
+        # отобрались по ключевым полям и нашли, то зачем еще проверка?
+        # Не вижу я в теме ничего подобного
+        # Unittest в Django: тестирование Forms
 
     def test_edit_post(self):
         form_data = {
@@ -55,11 +64,11 @@ class TaskURLTests(TestCase):
         }
         response = self.authorized_client.post(
             reverse('posts:post_edit',
-                    kwargs={'post_id': '111'}),
+                    kwargs={'post_id': self.post.id}),
             data=form_data, follow=True)
         self.assertRedirects(response,
                              reverse('posts:post_detail',
-                                     kwargs={'post_id': '111'})
+                                     kwargs={'post_id': self.post.id})
                              )
         self.assertTrue(
             Post.objects.filter(
@@ -68,3 +77,16 @@ class TaskURLTests(TestCase):
                 text='text1'
             ).exists()
         )
+
+    def test_create_post_guest(self):
+        post_count = Post.objects.count()
+        form_data = {
+            'text': 'text_guest',
+            'group': self.group.pk,
+        }
+        response = self.guest_client.post(reverse('posts:post_create'),
+                                          data=form_data, follow=True)
+
+        self.assertEqual(Post.objects.count(), post_count)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
