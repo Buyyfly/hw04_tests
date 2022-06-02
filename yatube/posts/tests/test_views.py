@@ -72,7 +72,8 @@ class TaskURLTests(TestCase):
         for template, reverse_name in self.templates_paginator_test.items():
             with self.subTest(reverse_name=reverse_name):
                 response = self.authorized_client.get(reverse_name)
-                self.assertEqual(len(response.context['page_obj']), settings.POSTS_PAGE)
+                self.assertEqual(len(response.context['page_obj']),
+                                 settings.POSTS_PAGE)
                 response = self.authorized_client.get(reverse_name + '?page=2')
                 self.assertEqual(len(response.context['page_obj']), 1)
 
@@ -82,10 +83,10 @@ class TaskURLTests(TestCase):
                 response = self.authorized_client.get(reverse_name)
                 self.assertIn('page_obj', response.context)
                 first_object = response.context['page_obj'][0]
-                TaskURLTests.test_context(self,
-                                          text=first_object.text,
-                                          author=first_object.author,
-                                          group=first_object.group)
+                TaskURLTests.cs(self,
+                                text=first_object.text,
+                                author=first_object.author,
+                                group=first_object.group)
 
     def test_post_detail_context(self):
         response = self.authorized_client.get(
@@ -94,16 +95,16 @@ class TaskURLTests(TestCase):
         self.assertIn('post', response.context)
         first_object = response.context['post']
         self.assertNotEqual(first_object.group, 'NoGroup')
-        TaskURLTests.test_context(self,
-                                  text=first_object.text,
-                                  author=first_object.author,
-                                  group=first_object.group)
+        TaskURLTests.cs(self,
+                        text=first_object.text,
+                        author=first_object.author,
+                        group=first_object.group)
 
     def test_create_edit_post_context(self):
         templates_create_edit = {
-            'posts/create_post.html': reverse('posts:post_create'),
-            'posts/create_post.html': reverse('posts:post_edit',
-                                              kwargs={'post_id': f'{self.post.id}'})
+            1: reverse('posts:post_create'),
+            2: reverse('posts:post_edit',
+                       kwargs={'post_id': f'{self.post.id}'})
         }
         for template, reverse_name in templates_create_edit.items():
             with self.subTest(reverse_name=reverse_name):
@@ -115,10 +116,12 @@ class TaskURLTests(TestCase):
                 }
                 for value, expected in form_fields.items():
                     with self.subTest(value=value):
-                        form_field = response.context.get('form').fields.get(value)
+                        form_field = response.context.get(
+                            'form'
+                        ).fields.get(value)
                         self.assertIsInstance(form_field, expected)
 
-    def test_context(self, text, author, group):
+    def cs(self, text, author, group):
         self.assertEqual(text, 'Тестовый пост')
         self.assertEqual(group, self.group)
         self.assertEqual(author, self.user)

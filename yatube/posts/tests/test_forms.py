@@ -89,4 +89,3 @@ class TaskURLTests(TestCase):
 
         self.assertEqual(Post.objects.count(), post_count)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-
